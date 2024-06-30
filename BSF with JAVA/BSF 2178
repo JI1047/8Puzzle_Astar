@@ -1,0 +1,107 @@
+import java.util.LinkedList;
+import java.util.Scanner;
+
+public class Main {
+
+    
+        public static void main(String[] args) {
+            
+            Scanner sc = new Scanner(System.in);
+
+            // N과 M 입력 받기
+            int N = sc.nextInt();//세로 입력받기
+            int M = sc.nextInt();//가로 입력받기
+            
+            
+            char[][] arr = new char[N][M];//n*M판 만들기
+            
+            for(int i=0; i<N; i++){
+                
+                String numStr = sc.next();
+
+                for(int j=0; j<M; j++){
+                    
+                    arr[i][j]=numStr.charAt(j);
+                    
+                }
+            }//표 채우기
+
+            Graph g=new Graph(N*M);
+
+            for(int i=0;i<N; i++){
+                for(int j=0; j<M; j++){
+                    
+                    int edge= (M*i+j);
+                    if(j<M-1){
+                        
+                        if((arr[i][j]=='1') && (arr[i][j+1]=='1')){
+                            g.addEdge(edge,edge+1);
+                            
+                        }
+                    }
+                    if(i<N-1){
+                        
+                        if((arr[i][j]=='1') && (arr[i+1][j]=='1')){
+                            g.addEdge(edge,edge+M);
+                            
+                        }
+                    }
+                   
+                    
+                    
+                }
+                
+            }
+
+            int start=0;
+            int end=N*M-1;
+
+            System.out.println(g.BFS(start, end)+1);
+        
+            // Scanner 사용 후 꼭 닫기
+            sc.close();
+        }
+        static class Graph {
+            private int V; // 노드의 개수
+            private LinkedList<Integer> adj[]; // 인접 리스트
+    
+            Graph(int v) {
+                V = v;//노드의 개수 4*4표라면 노드의 개수는 16개이다.
+                adj = new LinkedList[v];//adj는 인접 리스트 배열이다. 16개의 노드가 있으니 인접배열도 16개가있어야한다.
+                for (int i = 0; i < v; ++i)
+                    adj[i] = new LinkedList();//각 인덱스에 new LinkedList<>() 할당
+            }
+    
+            void addEdge(int v, int w) {
+                adj[v].add(w);
+                adj[w].add(v); // 무방향 그래프의 경우 양쪽으로 연결
+            }
+    
+            int BFS(int start, int goal) {
+                boolean visited[] = new boolean[V];//각 노드가 방문되었는지 여부를 추적한다.
+                int[] distance = new int[V];//시작 노드로부터 각 노드까지의 거리를 저장한다. 
+                LinkedList<Integer> queue = new LinkedList<>();//탐색을 위한 큐선언
+    
+                visited[start] = true;//처음 꺼는 방문상태로 해놓아야함
+                queue.add(start);//처음꺼는 방문해놓고 queue에 추가
+    
+                while (!queue.isEmpty()) {
+                    int node = queue.poll();//큐에서 노드를 하나꺼내어 node변수에 저장한다. 첫번째 요소를 제거하고 반환함
+    
+                    for (int n : adj[node]) {//꺼내온 노드의 인접 리스트들을 탐색
+                        if (!visited[n]) {//방문되지 않은 것만 ㄱㄱ
+                            visited[n] = true;//방문처리
+                            queue.add(n);//인접노드 n을 큐에 추가
+                            distance[n] = distance[node] + 1;//n까지의 거리는 현재 node에서 1더한거
+    
+                            if (n == goal) {
+                                return distance[n];//목표랑 닿으면 거리 반환
+                            }
+                        }
+                    }
+                }
+                return -1; // 경로가 없는 경우
+            }
+
+    }
+}
